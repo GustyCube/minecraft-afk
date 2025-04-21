@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFK Bot - User Management</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+    }
+
+    .card h2 {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.875rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    .user-list {
+      list-style: none;
+    }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: var(--background);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-item .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .nav-btn:hover {
+      background: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1><i class="fas fa-users-cog"></i> User Management</h1>
+      <div style="display: flex; gap: 1rem;">
+        <a href="/" class="nav-btn">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <a href="/logout" class="nav-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2><i class="fas fa-user-plus"></i> Add New User</h2>
+      <form id="addUserForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">
+          <i class="fas fa-plus"></i> Add User
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-users"></i> User List</h2>
+      <ul class="user-list" id="userList">
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function loadUsers() {
+      fetch('/users')
+        .then(res => res.json())
+        .then(users => {
+          const userList = document.getElementById('userList');
+          userList.innerHTML = '';
+          
+          users.forEach(username => {
+            const li = document.createElement('li');
+            li.className = 'user-item';
+            li.innerHTML = `
+              <div class="user-info">
+                <i class="fas fa-user"></i>
+                <span>${username}</span>
+                ${username === 'admin' ? '<span style="color: var(--primary); margin-left: 0.5rem;">(Administrator)</span>' : ''}
+              </div>
+              ${username !== 'admin' ? `
+                <button class="danger" onclick="deleteUser('${username}')">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              ` : ''}
+            `;
+            userList.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading users:', err);
+        });
+    }
+
+    function deleteUser(username) {
+      if (confirm(`Are you sure you want to delete user "${username}"?`)) {
+        fetch(`/users/${username}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(() => {
+            loadUsers();
+          })
+          .catch(err => {
+            alert('Error deleting user');
+            console.error(err);
+          });
+      }
+    }
+
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = {
+        username: formData.get('username'),
+        password: formData.get('password')
+      };
+      
+      fetch('/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.text().then(text => { throw new Error(text); });
+        }
+        return res.json();
+      })
+      .then(() => {
+        e.target.reset();
+        loadUsers();
+      })
+      .catch(err => {
+        alert(err.message || 'Error adding user');
+        console.error(err);
+      });
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>

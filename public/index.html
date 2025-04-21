@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFK Bot Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --secondary: #64748b;
+      --success: #22c55e;
+      --warning: #eab308;
+      --danger: #ef4444;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .card-header .icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-connected {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+
+    .status-disconnected {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .status-indicator i {
+      font-size: 0.75rem;
+    }
+
+    .account-list:empty::after {
+      content: 'No accounts added yet';
+      display: block;
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 1rem;
+      background: var(--background);
+      border-radius: 8px;
+      font-style: italic;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Modern Toggle Switch Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border);
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+
+    .form-group.toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .settings-section {
+      margin-bottom: 2rem;
+    }
+
+    .settings-section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-section-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .settings-section-header .icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: white;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .advanced-settings {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .accordion {
+      background: var(--background);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .accordion-header {
+      padding: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+
+    .accordion-content {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .accordion.active .accordion-content {
+      display: block;
+    }
+
+    .accordion-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .accordion.active .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    button.danger:hover {
+      background: #dc2626;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    #log {
+      flex: 1;
+      height: 300px;
+      background: var(--background);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-y: auto;
+      font-family: 'Consolas', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .log-entry {
+      margin: 0.25rem 0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .log-entry.success {
+      color: var(--success);
+    }
+
+    .log-entry.error {
+      color: var(--danger);
+    }
+
+    .log-entry.warning {
+      color: var(--warning);
+    }
+
+    .log-entry.chat {
+      color: var(--text);
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-form input {
+      flex: 1;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 1rem;
+      row-gap: 0.75rem;
+    }
+
+    .status-grid strong {
+      color: var(--text-secondary);
+    }
+
+    .account-list {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .account-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: var(--background);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .account-item.active {
+      border: 1px solid var(--primary);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .account-item .account-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .active-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .auth-modal-content {
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .auth-modal h3 {
+      margin-bottom: 1rem;
+    }
+
+    .auth-modal-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 0.5rem 1rem;
+    }
+
+    .logout-btn:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1><i class="fas fa-robot"></i> AFK Bot Dashboard</h1>
+      <div style="display: flex; gap: 1rem;">
+        <a href="/manage-users" class="logout-btn" id="userManageBtn" style="display: none;">
+          <i class="fas fa-users-cog"></i> Manage Users
+        </a>
+        <a href="/logout" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <div class="icon"><i class="fas fa-users"></i></div>
+        <h2>Multi-Account Management</h2>
+      </div>
+      <form id="addAccountForm">
+        <div class="form-group">
+          <label for="newAccountUsername">Add Microsoft Account</label>
+          <input id="newAccountUsername" name="username" placeholder="user@example.com" required>
+        </div>
+        <button type="submit">
+          <i class="fas fa-plus-circle"></i> Add New Account
+        </button>
+      </form>
+      <div style="margin-top: 1.5rem;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-secondary);">
+          <i class="fas fa-list"></i> Registered Accounts
+        </h3>
+        <div class="account-list" id="accountList"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="icon"><i class="fas fa-signal"></i></div>
+        <h2>Connection Status</h2>
+      </div>
+      <div class="status-grid">
+        <strong>Status:</strong>
+        <span id="status" class="status-indicator status-disconnected">
+          <i class="fas fa-circle"></i> Disconnected
+        </span>
+        <strong>Active Account:</strong>
+        <span id="user">—</span>
+        <strong>Server:</strong>
+        <span><span id="host">—</span>:<span id="port">—</span></span>
+        <strong>Last AFK Cmd:</strong>
+        <span id="lastAFK" style="font-family: monospace;">—</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="icon"><i class="fas fa-cog"></i></div>
+        <h2>Settings</h2>
+      </div>
+      <form id="settingsForm">
+        <!-- Basic Settings -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="icon"><i class="fas fa-server"></i></div>
+            <h3>Server Configuration</h3>
+          </div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label for="host">Server Address</label>
+              <input id="host" name="host" placeholder="your.server.com" required>
+            </div>
+            <div class="form-group">
+              <label for="port">Port</label>
+              <input id="port" name="port" type="number" value="25565" required>
+            </div>
+            <div class="form-group">
+              <label for="selectedAccount">Active Account</label>
+              <select id="selectedAccount" name="selectedAccount"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="icon"><i class="fas fa-bed"></i></div>
+            <h3>AFK Settings</h3>
+          </div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label for="wiggleInterval">Wiggle Interval (ms)</label>
+              <input id="wiggleInterval" name="wiggleInterval" type="number" value="30000">
+            </div>
+            <div class="form-group">
+              <label for="wiggleAmplitude">Wiggle Amplitude</label>
+              <input id="wiggleAmplitude" name="wiggleAmplitude" type="number" step="0.01" value="0.1">
+            </div>
+            <div class="form-group toggle">
+              <label for="chatPingEnabled">Enable Chat Ping</label>
+              <label class="toggle-switch">
+                <input id="chatPingEnabled" name="chatPingEnabled" type="checkbox">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="chatPingInterval">Chat Ping Interval (ms)</label>
+              <input id="chatPingInterval" name="chatPingInterval" type="number" value="300000">
+            </div>
+            <div class="form-group">
+              <label for="chatPingMessage">Chat Ping Message</label>
+              <input id="chatPingMessage" name="chatPingMessage" value="afk">
+            </div>
+            <div class="form-group">
+              <label for="afkRetryInterval">AFK Retry Interval (ms)</label>
+              <input id="afkRetryInterval" name="afkRetryInterval" type="number" value="5000">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="icon"><i class="fas fa-sync"></i></div>
+            <h3>Auto Reconnect</h3>
+          </div>
+          <div class="settings-grid">
+            <div class="form-group toggle">
+              <label for="autoReconnectEnabled">Enable Auto Reconnect</label>
+              <label class="toggle-switch">
+                <input id="autoReconnectEnabled" name="autoReconnectEnabled" type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="autoReconnectDelay">Reconnect Delay (ms)</label>
+              <input id="autoReconnectDelay" name="autoReconnectDelay" type="number" value="5000">
+            </div>
+            <div class="form-group">
+              <label for="autoReconnectMaxAttempts">Max Attempts (-1 for infinite)</label>
+              <input id="autoReconnectMaxAttempts" name="autoReconnectMaxAttempts" type="number" value="-1">
+            </div>
+            <div class="form-group">
+              <label for="autoReconnectOnJoinCommand">Commands to Run on Join (separate with semicolon)</label>
+              <input id="autoReconnectOnJoinCommand" name="autoReconnectOnJoinCommand" placeholder="/afk ; /warp spawn">
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Settings (Accordion) -->
+        <div class="advanced-settings">
+          <div class="accordion" id="physicsAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('physicsAccordion')">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="icon"><i class="fas fa-running"></i></div>
+                <h3>Physics & Movement</h3>
+              </div>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <div class="settings-grid">
+                <div class="form-group toggle">
+                  <label for="physicsJumpEnabled">Enable Jumping</label>
+                  <label class="toggle-switch">
+                    <input id="physicsJumpEnabled" name="physicsJumpEnabled" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group toggle">
+                  <label for="physicsSprintEnabled">Enable Sprint</label>
+                  <label class="toggle-switch">
+                    <input id="physicsSprintEnabled" name="physicsSprintEnabled" type="checkbox">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group toggle">
+                  <label for="physicsSneakEnabled">Enable Sneak</label>
+                  <label class="toggle-switch">
+                    <input id="physicsSneakEnabled" name="physicsSneakEnabled" type="checkbox">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label for="physicsGravity">Gravity</label>
+                  <input id="physicsGravity" name="physicsGravity" type="number" step="0.01" value="0.08">
+                </div>
+                <div class="form-group">
+                  <label for="physicsJumpBoost">Jump Boost</label>
+                  <input id="physicsJumpBoost" name="physicsJumpBoost" type="number" step="0.01" value="0.42">
+                </div>
+                <div class="form-group">
+                  <label for="physicsWaterSpeed">Water Speed</label>
+                  <input id="physicsWaterSpeed" name="physicsWaterSpeed" type="number" step="0.01" value="0.02">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="movementAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('movementAccordion')">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="icon"><i class="fas fa-arrows-alt"></i></div>
+                <h3>Movement Behavior</h3>
+              </div>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <div class="settings-grid">
+                <div class="form-group toggle">
+                  <label for="movementAutoJump">Auto Jump</label>
+                  <label class="toggle-switch">
+                    <input id="movementAutoJump" name="movementAutoJump" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label for="movementAutoJumpHeight">Auto Jump Height</label>
+                  <input id="movementAutoJumpHeight" name="movementAutoJumpHeight" type="number" step="0.1" value="1.0">
+                </div>
+                <div class="form-group">
+                  <label for="movementWalkSpeed">Walk Speed</label>
+                  <input id="movementWalkSpeed" name="movementWalkSpeed" type="number" step="0.1" value="4.317">
+                </div>
+                <div class="form-group">
+                  <label for="movementSprintSpeed">Sprint Speed</label>
+                  <input id="movementSprintSpeed" name="movementSprintSpeed" type="number" step="0.1" value="5.612">
+                </div>
+                <div class="form-group">
+                  <label for="movementType">Movement Type</label>
+                  <select id="movementType" name="movementType">
+                    <option value="none">None (Stationary)</option>
+                    <option value="patrol">Patrol Area</option>
+                    <option value="follow">Follow Player</option>
+                    <option value="random">Random Walk</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="pathfindingAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('pathfindingAccordion')">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="icon"><i class="fas fa-route"></i></div>
+                <h3>Pathfinding</h3>
+              </div>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <div class="settings-grid">
+                <div class="form-group toggle">
+                  <label for="pathfindingEnabled">Enable Pathfinding</label>
+                  <label class="toggle-switch">
+                    <input id="pathfindingEnabled" name="pathfindingEnabled" type="checkbox">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group toggle">
+                  <label for="pathfindingAvoidWater">Avoid Water</label>
+                  <label class="toggle-switch">
+                    <input id="pathfindingAvoidWater" name="pathfindingAvoidWater" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group toggle">
+                  <label for="pathfindingAvoidLava">Avoid Lava</label>
+                  <label class="toggle-switch">
+                    <input id="pathfindingAvoidLava" name="pathfindingAvoidLava" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group toggle">
+                  <label for="pathfindingCanOpenDoors">Can Open Doors</label>
+                  <label class="toggle-switch">
+                    <input id="pathfindingCanOpenDoors" name="pathfindingCanOpenDoors" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="advancedAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('advancedAccordion')">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="icon"><i class="fas fa-tools"></i></div>
+                <h3>Advanced Settings</h3>
+              </div>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <div class="settings-grid">
+                <div class="form-group toggle">
+                  <label for="advancedAutoRespawn">Auto Respawn</label>
+                  <label class="toggle-switch">
+                    <input id="advancedAutoRespawn" name="advancedAutoRespawn" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group toggle">
+                  <label for="advancedColorChat">Enable Color Chat</label>
+                  <label class="toggle-switch">
+                    <input id="advancedColorChat" name="advancedColorChat" type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label for="advancedViewDistance">View Distance</label>
+                  <input id="advancedViewDistance" name="advancedViewDistance" type="number" min="1" max="32" value="4">
+                </div>
+                <div class="form-group">
+                  <label for="advancedReconnectDelay">Reconnect Delay (ms)</label>
+                  <input id="advancedReconnectDelay" name="advancedReconnectDelay" type="number" value="5000">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit">
+          <i class="fas fa-save"></i> Save & Restart
+        </button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="icon"><i class="fas fa-comments"></i></div>
+        <h2>Chat & Logs</h2>
+      </div>
+      <div class="chat-container">
+        <div id="log"></div>
+        <form id="chatForm" class="chat-form">
+          <input name="chat" placeholder="Type command... (e.g., /afk 1)" required>
+          <button type="submit">
+            <i class="fas fa-paper-plane"></i> Send
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="authModal" class="auth-modal" style="display: none;">
+    <div class="auth-modal-content">
+      <h3>Microsoft Authentication Required</h3>
+      <p>Click the button below to authenticate with Microsoft:</p>
+      <a id="authLink" href="#" target="_blank" class="button">
+        <i class="fab fa-microsoft"></i> Open Microsoft Login
+      </a>
+      <p style="margin-top: 1rem;">Code: <strong id="authCode"></strong></p>
+      <div class="auth-modal-buttons">
+        <button onclick="completeAuth()">
+          <i class="fas fa-check"></i> Complete Authentication
+        </button>
+        <button onclick="cancelAuth()" class="danger">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    function toggleAccordion(id) {
+      const accordion = document.getElementById(id);
+      accordion.classList.toggle('active');
+    }
+
+    let socket;
+    try {
+      if (typeof io !== 'undefined') {
+        socket = io();
+      } else {
+        console.warn('Socket.IO not loaded - functionality will be limited');
+        socket = {
+          on: function() { console.log('Mock socket.on called'); },
+          emit: function() { console.log('Mock socket.emit called'); }
+        };
+      }
+    } catch (error) {
+      console.error('Error initializing socket:', error);
+      socket = {
+        on: function() {},
+        emit: function() {}
+      };
+    }
+    
+    const logEl = document.getElementById('log');
+    const selAcct = document.getElementById('selectedAccount');
+    const accountList = document.getElementById('accountList');
+    let lastAFKCmd = null;
+    let pendingAuth = null;
+
+    const MINECRAFT_COLORS = {
+      '0': '#000000', // Black
+      '1': '#0000AA', // Dark Blue
+      '2': '#00AA00', // Dark Green
+      '3': '#00AAAA', // Dark Aqua
+      '4': '#AA0000', // Dark Red
+      '5': '#AA00AA', // Dark Purple
+      '6': '#FFAA00', // Gold
+      '7': '#AAAAAA', // Gray
+      '8': '#555555', // Dark Gray
+      '9': '#5555FF', // Blue
+      'a': '#55FF55', // Green
+      'b': '#55FFFF', // Aqua
+      'c': '#FF5555', // Red
+      'd': '#FF55FF', // Light Purple
+      'e': '#FFFF55', // Yellow
+      'f': '#FFFFFF', // White
+    };
+
+    function logMessage(msg, type = 'chat') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = msg;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function logColorMessage(parts) {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      
+      parts.forEach(part => {
+        const span = document.createElement('span');
+        span.textContent = part.text;
+        
+        if (part.style.color) {
+          span.style.color = part.style.color;
+        }
+        if (part.style.bold) {
+          span.style.fontWeight = 'bold';
+        }
+        if (part.style.italic) {
+          span.style.fontStyle = 'italic';
+        }
+        if (part.style.underline) {
+          span.style.textDecoration = 'underline';
+        }
+        if (part.style.strikethrough) {
+          span.style.textDecoration = 'line-through';
+        }
+        
+        entry.appendChild(span);
+      });
+      
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function refreshAccounts(list, selected) {
+      selAcct.innerHTML = '';
+      accountList.innerHTML = '';
+      
+      list.forEach((a, i) => {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `${a.username} ${i === selected ? '(Active)' : ''}`;
+        selAcct.appendChild(option);
+
+        const item = document.createElement('div');
+        item.className = `account-item ${i === selected ? 'active' : ''}`;
+        item.innerHTML = `
+          <div class="account-info">
+            <i class="fab fa-microsoft" style="color: #00a4ef;"></i>
+            <span>${a.username}</span>
+            ${i === selected ? '<span class="active-badge"><i class="fas fa-check"></i> Active</span>' : ''}
+          </div>
+          <button class="danger" onclick="removeAccount(${i})">
+            <i class="fas fa-trash-alt"></i> Remove
+          </button>
+        `;
+        accountList.appendChild(item);
+      });
+      
+      if (list.length === 0) {
+        accountList.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 1rem; background: var(--background); border-radius: 8px;"><i class="fas fa-user-plus"></i> No accounts added yet. Add a Microsoft account above.</div>';
+      }
+      
+      selAcct.selectedIndex = selected;
+    }
+
+    function removeAccount(index) {
+      if (confirm('Are you sure you want to remove this account?')) {
+        socket.emit('removeAccount', index);
+      }
+    }
+
+    function showAuthModal(authInfo) {
+      pendingAuth = authInfo;
+      document.getElementById('authModal').style.display = 'flex';
+      document.getElementById('authLink').href = authInfo.url;
+      document.getElementById('authCode').textContent = authInfo.authCode;
+    }
+
+    function completeAuth() {
+      if (pendingAuth) {
+        socket.emit('completeAuth', pendingAuth);
+        document.getElementById('authModal').style.display = 'none';
+        pendingAuth = null;
+      }
+    }
+
+    function cancelAuth() {
+      document.getElementById('authModal').style.display = 'none';
+      pendingAuth = null;
+    }
+
+    socket.on('status', s => {
+      refreshAccounts(s.accounts, s.selectedAccount);
+      
+      const statusEl = document.getElementById('status');
+      if (s.connected) {
+        statusEl.innerHTML = '<i class="fas fa-circle"></i> Connected';
+        statusEl.className = 'status-indicator status-connected';
+      } else {
+        statusEl.innerHTML = '<i class="fas fa-circle"></i> Disconnected';
+        statusEl.className = 'status-indicator status-disconnected';
+      }
+      
+      document.getElementById('user').textContent = s.username;
+      document.getElementById('host').textContent = s.host;
+      document.getElementById('port').textContent = s.port;
+      document.getElementById('lastAFK').textContent = lastAFKCmd || '—';
+      
+      const form = document.forms.settingsForm;
+      form.host.value = s.host;
+      form.port.value = s.port;
+      form.wiggleInterval.value = s.wiggleInterval;
+      form.wiggleAmplitude.value = s.wiggleAmplitude;
+      form.chatPingEnabled.checked = s.chatPingEnabled;
+      form.chatPingInterval.value = s.chatPingInterval;
+      form.chatPingMessage.value = s.chatPingMessage;
+      form.afkRetryInterval.value = s.afkRetryInterval;
+      form.selectedAccount.value = s.selectedAccount;
+      
+      if (s.autoReconnect) {
+        form.autoReconnectEnabled.checked = s.autoReconnect.enabled;
+        form.autoReconnectDelay.value = s.autoReconnect.delay;
+        form.autoReconnectMaxAttempts.value = s.autoReconnect.maxAttempts;
+        form.autoReconnectOnJoinCommand.value = s.autoReconnect.onJoinCommand;
+      }
+      
+      if (s.physics) {
+        form.physicsJumpEnabled.checked = s.physics.jumpEnabled;
+        form.physicsSprintEnabled.checked = s.physics.sprintEnabled;
+        form.physicsSneakEnabled.checked = s.physics.sneakEnabled;
+        form.physicsGravity.value = s.physics.gravity;
+        form.physicsJumpBoost.value = s.physics.jumpBoost;
+        form.physicsWaterSpeed.value = s.physics.waterSpeed;
+      }
+      
+      if (s.movement) {
+        form.movementAutoJump.checked = s.movement.autoJump;
+        form.movementAutoJumpHeight.value = s.movement.autoJumpHeight;
+        form.movementWalkSpeed.value = s.movement.walkSpeed;
+        form.movementSprintSpeed.value = s.movement.sprintSpeed;
+        form.movementType.value = s.movement.movementType;
+      }
+      
+      if (s.pathfinding) {
+        form.pathfindingEnabled.checked = s.pathfinding.enabled;
+        form.pathfindingAvoidWater.checked = s.pathfinding.avoidWater;
+        form.pathfindingAvoidLava.checked = s.pathfinding.avoidLava;
+        form.pathfindingCanOpenDoors.checked = s.pathfinding.canOpenDoors;
+      }
+      
+      if (s.advanced) {
+        form.advancedAutoRespawn.checked = s.advanced.autoRespawn;
+        form.advancedViewDistance.value = s.advanced.viewDistance;
+        form.advancedReconnectDelay.value = s.advanced.reconnectDelay;
+        form.advancedColorChat.checked = s.advanced.colorChat;
+      }
+    });
+
+    socket.on('log', msg => {
+      let type = 'chat';
+      if (msg.includes('✔️')) type = 'success';
+      else if (msg.includes('❌')) type = 'error';
+      else if (msg.includes('⚠️')) type = 'warning';
+      logMessage(msg, type);
+    });
+
+    socket.on('colorLog', parts => {
+      logColorMessage(parts);
+    });
+
+    socket.on('authRequired', showAuthModal);
+
+    document.getElementById('addAccountForm').onsubmit = e => {
+      e.preventDefault();
+      socket.emit('addAccount', {
+        username: e.target.username.value,
+        auth: 'microsoft'
+      });
+      e.target.reset();
+    };
+
+    document.getElementById('settingsForm').onsubmit = e => {
+      e.preventDefault();
+      socket.emit('setSettings', Object.fromEntries(new FormData(e.target)));
+    };
+
+    document.getElementById('chatForm').onsubmit = e => {
+      e.preventDefault();
+      const txt = e.target.chat.value.trim();
+      if (!txt) return;
+      lastAFKCmd = txt;
+      socket.emit('sendChat', txt);
+      e.target.reset();
+    };
+    fetch('/users')
+      .then(res => {
+        if (res.ok) {
+          document.getElementById('userManageBtn').style.display = 'inline-flex';
+        }
+      })
+      .catch(() => {
+        // Yes
+      });
+  </script>
+</body>
+</html>
