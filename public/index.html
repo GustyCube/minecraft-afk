@@ -851,7 +851,20 @@
     let socket;
     try {
       if (typeof io !== 'undefined') {
-        socket = io();
+        socket = io({
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000
+        });
+        
+        socket.on('connect', () => {
+          console.log('Connected to server');
+        });
+        
+        socket.on('connect_error', (error) => {
+          console.error('Connection error:', error);
+        });
       } else {
         console.warn('Socket.IO not loaded - functionality will be limited');
         // Create a mock socket object for development/testing
