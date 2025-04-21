@@ -11,10 +11,26 @@ const { Auth } = require('mineflayer');
 
 const app    = express();
 const server = http.createServer(app);
-const io     = new Server(server);
+
+// Configure socket.io with proper CORS settings
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
 const CONFIG_PATH = path.resolve(__dirname, 'config.json');
 const USERS_PATH = path.resolve(__dirname, 'users.json');
+
+// Session configuration
+const sessionMiddleware = session({
+  secret: 'your-secret-key-' + Math.random(),
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+});
 
 // Default configuration
 let config = {
@@ -104,21 +120,12 @@ let isConnecting = false;
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(session({
-  secret: 'your-secret-key-' + Math.random(),
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
-}));
+app.use(sessionMiddleware);
 
-// Authentication middleware
-function requireAuth(req, res, next) {
-  if (req.session && req.session.user) {
-    return next();
-  } else {
-    return res.redirect('/login');
-  }
-}
+// Share session with socket.io
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
 
 // Socket authentication
 io.use((socket, next) => {
@@ -129,6 +136,15 @@ io.use((socket, next) => {
     next(new Error('Authentication required'));
   }
 });
+
+// Authentication middleware
+function requireAuth(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  } else {
+    return res.redirect('/login');
+  }
+}
 
 // Serve static files
 app.use('/static', express.static('public'));
