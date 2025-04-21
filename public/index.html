@@ -562,6 +562,7 @@
           </div>
         </div>
 
+        <!-- AFK Settings -->
         <div class="settings-section">
           <div class="settings-section-header">
             <div class="icon"><i class="fas fa-bed"></i></div>
@@ -598,6 +599,7 @@
           </div>
         </div>
 
+        <!-- Auto Reconnect Settings -->
         <div class="settings-section">
           <div class="settings-section-header">
             <div class="icon"><i class="fas fa-sync"></i></div>
@@ -845,12 +847,14 @@
       accordion.classList.toggle('active');
     }
 
+    // Handle socket.io loading errors
     let socket;
     try {
       if (typeof io !== 'undefined') {
         socket = io();
       } else {
         console.warn('Socket.IO not loaded - functionality will be limited');
+        // Create a mock socket object for development/testing
         socket = {
           on: function() { console.log('Mock socket.on called'); },
           emit: function() { console.log('Mock socket.emit called'); }
@@ -870,6 +874,7 @@
     let lastAFKCmd = null;
     let pendingAuth = null;
 
+    // Minecraft color codes to CSS
     const MINECRAFT_COLORS = {
       '0': '#000000', // Black
       '1': '#0000AA', // Dark Blue
@@ -1014,6 +1019,7 @@
       form.afkRetryInterval.value = s.afkRetryInterval;
       form.selectedAccount.value = s.selectedAccount;
       
+      // Auto reconnect settings
       if (s.autoReconnect) {
         form.autoReconnectEnabled.checked = s.autoReconnect.enabled;
         form.autoReconnectDelay.value = s.autoReconnect.delay;
@@ -1021,6 +1027,7 @@
         form.autoReconnectOnJoinCommand.value = s.autoReconnect.onJoinCommand;
       }
       
+      // Physics settings
       if (s.physics) {
         form.physicsJumpEnabled.checked = s.physics.jumpEnabled;
         form.physicsSprintEnabled.checked = s.physics.sprintEnabled;
@@ -1030,6 +1037,7 @@
         form.physicsWaterSpeed.value = s.physics.waterSpeed;
       }
       
+      // Movement settings
       if (s.movement) {
         form.movementAutoJump.checked = s.movement.autoJump;
         form.movementAutoJumpHeight.value = s.movement.autoJumpHeight;
@@ -1038,6 +1046,7 @@
         form.movementType.value = s.movement.movementType;
       }
       
+      // Pathfinding settings
       if (s.pathfinding) {
         form.pathfindingEnabled.checked = s.pathfinding.enabled;
         form.pathfindingAvoidWater.checked = s.pathfinding.avoidWater;
@@ -1045,6 +1054,7 @@
         form.pathfindingCanOpenDoors.checked = s.pathfinding.canOpenDoors;
       }
       
+      // Advanced settings
       if (s.advanced) {
         form.advancedAutoRespawn.checked = s.advanced.autoRespawn;
         form.advancedViewDistance.value = s.advanced.viewDistance;
@@ -1069,11 +1079,19 @@
 
     document.getElementById('addAccountForm').onsubmit = e => {
       e.preventDefault();
+      const username = e.target.username.value.trim();
+      if (!username) {
+        alert('Please enter an email address');
+        return;
+      }
+      
       socket.emit('addAccount', {
-        username: e.target.username.value,
+        username: username,
         auth: 'microsoft'
       });
+      
       e.target.reset();
+      logMessage(`Adding account ${username}...`, 'success');
     };
 
     document.getElementById('settingsForm').onsubmit = e => {
@@ -1089,6 +1107,7 @@
       socket.emit('sendChat', txt);
       e.target.reset();
     };
+    // Check if user is admin
     fetch('/users')
       .then(res => {
         if (res.ok) {
@@ -1096,7 +1115,7 @@
         }
       })
       .catch(() => {
-        // Yes
+        // Not admin or error occurred
       });
   </script>
 </body>
