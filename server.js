@@ -173,5 +173,6 @@ io.on('connection', socket => {
 
 const WEB_PORT = 3000;
 server.listen(WEB_PORT, () => {
-  console.log(`UI at http://localhost:${WEB_PORT}`);
-  start
+  console.log(`POWERED BY GUSTYCUBE: UI at http://localhost:${WEB_PORT}`);
+  startBot();
+});
