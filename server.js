@@ -359,7 +359,7 @@ function startBot() {
       port:     config.port,
       auth:     account.auth,
       username: account.username,
-      version:  false, // Auto-detect version
+      version:  '1.19.4', // Auto-detect version
       checkTimeoutInterval: 60 * 1000,
       physicsEnabled: config.physics.jumpEnabled || config.physics.sprintEnabled || config.physics.sneakEnabled,
       viewDistance: config.advanced.viewDistance,
